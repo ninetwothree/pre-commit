@@ -1,0 +1,418 @@
+# docker run --pull=always -q --network=none -v "$(pwd):/lint:Z" -w /lint ghcr.io/ninetwothree/pre-commit:latest run -a
+repos:
+  - repo: local
+    hooks:
+      - id: check-added-large-files
+        name: check for added large files
+        description: prevents giant files from being committed.
+        entry: check-added-large-files
+        language: system
+      - id: check-ast
+        name: check python ast
+        description: simply checks whether the files parse as valid python.
+        entry: check-ast
+        language: system
+        types: [python]
+      - id: check-builtin-literals
+        name: check builtin type constructor use
+        description: requires literal syntax when initializing empty or zero python builtin types.
+        entry: check-builtin-literals
+        types: [python]
+        language: system
+      - id: check-case-conflict
+        name: check for case conflicts
+        description: checks for files that would conflict in case-insensitive filesystems.
+        entry: check-case-conflict
+        language: system
+      - id: check-docstring-first
+        name: check docstring is first
+        description: checks a common error of defining a docstring after code.
+        entry: check-docstring-first
+        language: system
+        types: [python]
+      - id: check-executables-have-shebangs
+        name: check that executables have shebangs
+        description: ensures that (non-binary) executables have a shebang.
+        entry: check-executables-have-shebangs
+        language: system
+        types: [text, executable]
+        stages: [pre-commit, pre-push, manual]
+        minimum_pre_commit_version: 3.2.0
+      - id: check-json
+        name: check json
+        description: checks json files for parseable syntax.
+        entry: check-json
+        language: system
+        types: [json]
+      - id: check-merge-conflict
+        name: check for merge conflicts
+        description: checks for files that contain merge conflict strings.
+        entry: check-merge-conflict
+        language: system
+        types: [text]
+      - id: check-symlinks
+        name: check for broken symlinks
+        description: checks for symlinks which do not point to anything.
+        entry: check-symlinks
+        language: system
+        types: [symlink]
+      - id: check-toml
+        name: check toml
+        description: checks toml files for parseable syntax.
+        entry: check-toml
+        language: system
+        types: [toml]
+      - id: check-vcs-permalinks
+        name: check vcs permalinks
+        description: ensures that links to vcs websites are permalinks.
+        entry: check-vcs-permalinks
+        language: system
+        types: [text]
+      - id: check-xml
+        name: check xml
+        description: checks xml files for parseable syntax.
+        entry: check-xml
+        language: system
+        types: [xml]
+      - id: check-yaml
+        name: check yaml
+        description: checks yaml files for parseable syntax.
+        entry: check-yaml
+        language: system
+        types: [yaml]
+      - id: debug-statements
+        name: debug statements (python)
+        description: checks for debugger imports and py37+ `breakpoint()` calls in python source.
+        entry: debug-statement-hook
+        language: system
+        types: [python]
+      - id: destroyed-symlinks
+        name: detect destroyed symlinks
+        description: detects symlinks which are changed to regular files with a content of a path which that symlink was pointing to.
+        entry: destroyed-symlinks
+        language: system
+        types: [file]
+        stages: [pre-commit, pre-push, manual]
+      - id: detect-aws-credentials
+        name: detect aws credentials
+        description: detects *your* aws credentials from the aws cli credentials file.
+        entry: detect-aws-credentials
+        args: ["--allow-missing-credentials"]
+        language: system
+        types: [text]
+      - id: detect-private-key
+        name: detect private key
+        description: detects the presence of private keys.
+        entry: detect-private-key
+        language: system
+        types: [text]
+      - id: end-of-file-fixer
+        name: fix end of files
+        description: ensures that a file is either empty, or ends with one newline.
+        entry: end-of-file-fixer
+        language: system
+        types: [text]
+        stages: [pre-commit, pre-push, manual]
+        minimum_pre_commit_version: 3.2.0
+      - id: file-contents-sorter
+        name: file contents sorter
+        description: sorts the lines in specified files (defaults to alphabetical). you must provide list of target files as input in your .pre-commit-config.yaml file.
+        entry: file-contents-sorter
+        language: system
+        files: '^$'
+      - id: fix-byte-order-marker
+        name: fix utf-8 byte order marker
+        description: removes utf-8 byte order marker.
+        entry: fix-byte-order-marker
+        language: system
+        types: [text]
+      - id: forbid-new-submodules
+        name: forbid new submodules
+        description: prevents addition of new git submodules.
+        language: system
+        entry: forbid-new-submodules
+        types: [directory]
+      - id: mixed-line-ending
+        name: mixed line ending
+        description: replaces or checks mixed line ending.
+        entry: mixed-line-ending
+        language: system
+        types: [text]
+      - id: name-tests-test
+        name: python tests naming
+        description: verifies that test files are named correctly.
+        entry: name-tests-test
+        language: system
+        files: (^|/)tests/.+\.py$
+      - id: no-commit-to-branch
+        name: "don't commit to branch"
+        entry: no-commit-to-branch
+        language: system
+        pass_filenames: false
+        always_run: true
+        args: ["--branch", "main", "--branch", "master", "--branch", "develop"]
+      - id: pretty-format-json
+        name: pretty format json
+        description: sets a standard for formatting json files.
+        entry: pretty-format-json
+        language: system
+        types: [json]
+        args: ["--autofix"]
+      - id: requirements-txt-fixer
+        name: fix requirements.txt
+        description: sorts entries in requirements.txt.
+        entry: requirements-txt-fixer
+        language: system
+        files: (requirements|constraints).*\.txt$
+      - id: sort-simple-yaml
+        name: sort simple yaml files
+        description: sorts simple yaml files which consist only of top-level keys, preserving comments and blocks.
+        language: system
+        entry: sort-simple-yaml
+        files: '^$'
+      - id: trailing-whitespace-fixer
+        name: trim trailing whitespace
+        description: trims trailing whitespace.
+        entry: trailing-whitespace-fixer
+        language: system
+        types: [text]
+        stages: [pre-commit, pre-push, manual]
+        minimum_pre_commit_version: 3.2.0
+# detect secrets
+      - id: trufflehog
+        name: TruffleHog
+        description: Detect secrets in your data.
+        entry: bash -c '/usr/local/bin/trufflehog git --exclude-paths .trufflehogignore file://. --branch=$(git branch --show-current) --fail'
+        language: system
+        stages: ["pre-commit", "pre-push"]
+
+      - id: gitleaks
+        name: GitLeaks
+        description: Detect secrets in your data.
+        entry: bash -c 'gitleaks detect --source . -v --log-opts=$(git branch --show-current)'
+        language: system
+# bash
+      - id: shellcheck
+        name: ShellCheck
+        description: check shell scripts
+        entry: bash -c 'for file in $(find . -type d -name .terraform -prune -o -type f -name "*.sh" -print); do shellcheck -f diff $file | git apply || shellcheck $file ; done'
+        language: system
+# Dockerfile
+      - id: hadolint
+        name: Lint Dockerfiles
+        description: Runs hadolint to lint Dockerfiles
+        language: system
+        types: ["dockerfile"]
+        entry: hadolint
+# CloudFormation
+      - id: cfn-lint-rc # Provide a configuration to use with .cfnlintrc.yaml
+        name: AWS CloudFormation Linter
+        description: 'cfn-lint is a tool for finding issues with CloudFormation templates'
+        entry: cfn-lint
+        language: system
+        pass_filenames: false
+# terraform
+      - id: terraform_fmt
+        name: Terraform fmt
+        description: >-
+          Rewrites all Terraform configuration files to a canonical format.
+        entry: terraform_fmt.sh
+        language: system
+        files: \.(tf|tofu|tfvars)$
+        exclude: \.terraform/.*$
+
+      - id: terraform_docs
+        name: Terraform docs
+        description: >-
+          Inserts input and output documentation into README.md
+          (using terraform-docs).
+        require_serial: true
+        entry: terraform_docs.sh
+        language: system
+        files: \.(tf|tofu|terraform\.lock\.hcl)$
+        exclude: \.terraform/.*$
+
+      - id: terraform_docs_without_aggregate_type_defaults
+        name: Terraform docs (without aggregate type defaults)
+        description: >-
+          Inserts input and output documentation into README.md
+          (using terraform-docs). Identical to terraform_docs.
+        require_serial: true
+        entry: terraform_docs.sh
+        language: system
+        files: \.(tf|tofu)$
+        exclude: \.terraform/.*$
+
+      - id: terraform_providers_lock
+        name: Lock terraform provider versions
+        description: Updates provider signatures in dependency lock files.
+        require_serial: true
+        entry: terraform_providers_lock.sh
+        language: system
+        files: (\.terraform\.lock\.hcl)$
+        exclude: \.terraform/.*$
+
+      - id: terraform_tflint
+        name: Terraform validate with tflint
+        description: Validates all Terraform configuration files with TFLint.
+        require_serial: true
+        entry: terraform_tflint.sh
+        args:
+          - --args=--fix
+          - --args=--disable-rule=terraform_required_providers
+          - --args=--disable-rule=terraform_required_version
+        language: system
+        files: \.(tf|tofu|tfvars)$
+        exclude: \.terraform/.*$
+
+      - id: terragrunt_fmt
+        name: Terragrunt fmt
+        description: >-
+          Rewrites all Terragrunt configuration files to a canonical format.
+        entry: terragrunt_fmt.sh
+        language: system
+        files: (\.hcl)$
+        exclude: \.terraform/.*$
+
+      - id: terragrunt_validate
+        name: Terragrunt validate
+        description: Validates all Terragrunt configuration files.
+        entry: terragrunt_validate.sh
+        language: system
+        files: (\.hcl)$
+        exclude: \.terraform/.*$
+
+      - id: terragrunt_validate_inputs
+        name: Terragrunt validate inputs
+        description: Validates Terragrunt unused and undefined inputs.
+        entry: terragrunt_validate_inputs.sh
+        language: system
+        files: (\.hcl)$
+        exclude: \.terraform/.*$
+
+      - id: terragrunt_providers_lock
+        name: Terragrunt providers lock
+        description: >-
+          Updates provider signatures in dependency lock files using terragrunt.
+        entry: terragrunt_providers_lock.sh
+        language: system
+        files: (terragrunt|\.terraform\.lock)\.hcl$
+        exclude: \.(terraform/.*|terragrunt-cache)$
+
+      - id: terraform_trivy
+        name: Terraform validate with trivy
+        description: >-
+          Static analysis of Terraform templates to spot potential security issues.
+        require_serial: true
+        entry: terraform_trivy.sh
+        files: \.(tf|tofu|tfvars)$
+        language: system
+
+      - id: terraform_checkov
+        name: Checkov
+        description: Runs checkov on Terraform templates.
+        entry: terraform_checkov.sh
+        language: system
+        always_run: false
+        files: \.(tf|tofu)$
+        exclude: \.terraform/.*$
+        require_serial: true
+
+      - id: terraform_wrapper_module_for_each
+        name: Terraform wrapper with for_each in module
+        description: Generate Terraform wrappers with for_each in module.
+        entry: terraform_wrapper_module_for_each.sh
+        language: system
+        pass_filenames: false
+        always_run: false
+        require_serial: true
+        files: \.(tf|tofu)$
+        exclude: \.terraform/.*$
+
+# python
+      - id: pyupgrade
+        name: pyupgrade
+        description: Automatically upgrade syntax for newer versions.
+        entry: pyupgrade
+        language: system
+        types: [python]
+        files: ''
+        minimum_pre_commit_version: 0.15.0
+
+      - id: isort
+        name: isort (python)
+        entry: isort
+        stages: [pre-commit, pre-merge-commit, pre-push, manual]
+        require_serial: true
+        language: system
+        types_or: [cython, pyi, python]
+        args: ['--profile=black']
+        minimum_pre_commit_version: '3.2.0'
+
+      - id: black
+        name: black
+        description: "Black: The uncompromising Python code formatter"
+        entry: black
+        language: system
+        minimum_pre_commit_version: 2.9.2
+        require_serial: true
+        types_or: [python, pyi]
+        args: ['--line-length', '120']
+
+      - id: black-jupyter
+        name: black-jupyter
+        description:
+          "Black: The uncompromising Python code formatter (with Jupyter Notebook support)"
+        entry: black
+        language: system
+        minimum_pre_commit_version: 2.9.2
+        require_serial: true
+        types_or: [python, pyi, jupyter]
+        args: ['--line-length', '120']
+
+      - id: autoflake
+        name: autoflake
+        entry: autoflake
+        language: system
+        "types": [python]
+        require_serial: true
+        args:
+          - "--in-place"
+          - "--expand-star-imports"
+          - "--remove-duplicate-keys"
+          - "--remove-unused-variables"
+          - "--remove-all-unused-imports"
+          - "--ignore-init-module-imports"
+          - "--recursive"
+
+      - id: autopep8
+        name: autopep8
+        description: A tool that automatically formats Python code to conform to the PEP 8 style guide.
+        entry: autopep8
+        language: system
+        types: [python]
+        args:
+          - "-r"
+          - "--in-place"
+          - "--aggressive"
+          - "--max-line-length"
+          - "120"
+
+      - id: flake8
+        name: flake8
+        description: '`flake8` is a command-line utility for enforcing style consistency across Python projects.'
+        entry: flake8
+        language: system
+        types: [python]
+        require_serial: true
+        args:
+          - "--ignore"
+          - "W503,E501"
+
+      - id: bandit
+        name: bandit
+        description: 'Bandit is a tool for finding common security issues in Python code'
+        entry: bandit
+        language: system
+        types: [python]
+        require_serial: true
